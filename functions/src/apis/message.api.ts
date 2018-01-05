@@ -3,15 +3,22 @@ import { storeTimeObject } from '../libs/timestamp';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
+export enum ROOM_TYPE {
+  OneToOne = 1
+}
+
 export const messageApi = Router()
   .post('/roomWithMessage', async (req, res, next) => {
     try {
       const firestore = admin.firestore();
+      const messageData = req.body.message;
       // user ref
       const usersRef = firestore.collection('users');
       // add room
-      const room = await firestore.collection('rooms').add(storeTimeObject({}));
-      const messageData = req.body.message;
+      const room = await firestore.collection('rooms')
+        .add(storeTimeObject({
+          type: ROOM_TYPE.OneToOne
+        }));
 
       const roomsUsers = room.collection('users');
       const messagesRef = room.collection('messages');
@@ -33,13 +40,19 @@ export const messageApi = Router()
           .doc(messageData.sender)
           .collection('rooms')
           .doc(messageData.addressee)
-          .set(storeTimeObject({ roomId: room.id })),
+          .set(storeTimeObject({
+            roomId: room.id,
+            type: ROOM_TYPE.OneToOne
+          })),
         // set addressee room
         usersRef
           .doc(messageData.addressee)
           .collection('rooms')
           .doc(messageData.sender)
-          .set(storeTimeObject({ roomId: room.id }))
+          .set(storeTimeObject({
+            roomId: room.id,
+            type: ROOM_TYPE.OneToOne
+          }))
       ]).then((result) => {
         return res.success({
           message: 'add message success',
