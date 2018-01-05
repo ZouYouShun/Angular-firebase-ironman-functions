@@ -17,12 +17,12 @@ export const roomsMessagefirestore = functions.firestore
       firestore.doc(`users/${message.sender}`)
         .collection('rooms')
         .doc(message.addressee)
-        .update({ last: message }),// because data contain createdAt and updatedAt, no longer to write again
+        .update(storeTimeObject({ last: message }, false)),
       // 兩個人的都要更新
       firestore.doc(`users/${message.addressee}`)
         .collection('rooms')
         .doc(message.sender)
-        .update({ last: message }),
+        .update(storeTimeObject({ last: message }, false)),
     ])
     // const messageRef: FirebaseFirestore.DocumentReference = event.data.ref;
     // return messageRef.parent.parent.update(storeTimeObject({ last: message }, false));
