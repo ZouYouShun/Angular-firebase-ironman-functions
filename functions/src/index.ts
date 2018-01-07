@@ -3,6 +3,7 @@ import * as functions from 'firebase-functions';
 
 import { Server } from './model/server.model';
 import { roomsMessagefirestore } from './triggers/firestore/roomsMessage.firestore';
+import { generateThumbnail } from './triggers/storage/generateThumbnail.storage';
 
 admin.initializeApp(functions.config().firebase);
 
@@ -15,3 +16,5 @@ admin.initializeApp(functions.config().firebase);
 export const api = functions.https.onRequest(new Server().bootstrap());
 
 export const Trigger_roomsMessage_store = roomsMessagefirestore;
+
+export const Trigger_generateThumbnail = generateThumbnail;

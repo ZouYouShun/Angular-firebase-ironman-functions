@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { storeTimeObject } from '../libs/timestamp';
-import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+
+import { storeTimeObject } from '../libs/timestamp';
 
 export enum ROOM_TYPE {
   OneToOne = 1

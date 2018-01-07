@@ -7,9 +7,6 @@ export const roomsMessagefirestore = functions.firestore
   .document('/rooms/{roomId}/messages/{messageId}').onCreate((event) => {
     const firestore = admin.firestore();
 
-    const roomId = event.params.roomId;
-    const messageId = event.params.messageId;
-
     const message = event.data.data();
 
     return Promise.all([
