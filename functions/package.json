@@ -13,6 +13,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@google-cloud/storage": "^1.5.2",
+    "@types/nodemailer": "^4.3.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "child-process-promise": "^2.2.1",
@@ -21,7 +22,8 @@
     "express-validator": "^4.3.0",
     "firebase-admin": "~5.4.2",
     "firebase-functions": "^0.7.1",
-    "ncp": "^2.0.0"
+    "ncp": "^2.0.0",
+    "nodemailer": "^4.4.1"
   },
   "devDependencies": {
     "@types/express": "^4.11.0",
