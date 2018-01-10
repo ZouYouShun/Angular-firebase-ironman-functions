@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { storeTimeObject } from '../../libs/timestamp';
 import { MessageModel, MESSAGE_TYPE } from '../../model/message.model';
+import { UserModel } from '../../model/user.model';
 
 // 當訊息有資料寫入時觸發
 export const roomsMessagefirestore = functions.firestore
@@ -9,7 +10,10 @@ export const roomsMessagefirestore = functions.firestore
     const firestore = admin.firestore();
 
     const message: MessageModel = event.data.data();
-    
+    const senderRef = firestore.doc(`users/${message.sender}`);
+    const addresseeRef = firestore.doc(`users/${message.addressee}`);
+
+    // set files
     const roomId = event.params.roomId;
     let fileHandler;
     if (message.type === MESSAGE_TYPE.FILE) {
@@ -21,19 +25,49 @@ export const roomsMessagefirestore = functions.firestore
         })
     }
 
+    // look fcmTokens and send messages
+
     return Promise.all([
       // 更新這個人對應到另一個人的最後一句資料
-      firestore.doc(`users/${message.sender}`)
+      senderRef
         .collection('rooms')
         .doc(message.addressee)
         .update(storeTimeObject({ last: message }, false)),
       // 兩個人的都要更新
-      firestore.doc(`users/${message.addressee}`)
+      addresseeRef
         .collection('rooms')
         .doc(message.sender)
         .update(storeTimeObject({ last: message }, false)),
       fileHandler
-    ])
-    // const messageRef: FirebaseFirestore.DocumentReference = event.data.ref;
-    // return messageRef.parent.parent.update(storeTimeObject({ last: message }, false));
+    ]).then(() => {
+      return Promise.all([
+        addresseeRef.get(),
+        senderRef.get()
+      ]);
+    }).then(async ([address, sender]) => {
+
+      const addresseeTokens = await address.ref.collection('fcmTokens').get();
+
+      if (addresseeTokens.empty) {
+        // 這個人尚未有任何載具
+        return false;
+      }
+
+      const addresseeData = address.data();
+      const senderData = sender.data();
+
+      const payload = {
+        notification: {
+          title: addresseeData.displayName,
+          icon: senderData.photoURL,
+          body: message.content,
+        }
+      };
+
+      const messaging = admin.messaging();
+
+      return addresseeTokens.docs.map(token => {
+        return messaging.sendToDevice(token.data().token, payload);
+      });
+    })
   });
