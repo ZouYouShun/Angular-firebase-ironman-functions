@@ -56,10 +56,13 @@ export const roomsMessagefirestore = functions.firestore
       const addresseeData = address.data();
       const senderData = sender.data();
 
+      const body = message.type === MESSAGE_TYPE.MESSAGE ? message.content : '送出了一個檔案';
+
       const payload = {
         notification: {
-          title: addresseeData.displayName,
           icon: senderData.photoURL,
+          clickAction: `https://onfirechat.ga/message/r/${roomId}/${message.sender}`,
+          title: addresseeData.displayName,
           body: message.content,
         }
       };
