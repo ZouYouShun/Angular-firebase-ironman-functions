@@ -1,8 +1,9 @@
-import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+
+import { StringHandler } from '../../libs/string.handler';
 import { storeTimeObject } from '../../libs/timestamp';
-import { MessageModel, MESSAGE_TYPE } from '../../model/message.model';
-import { UserModel } from '../../model/user.model';
+import { MESSAGE_TYPE, MessageModel } from '../../model/message.model';
 
 // 當訊息有資料寫入時觸發
 export const roomsMessagefirestore = functions.firestore
@@ -56,14 +57,19 @@ export const roomsMessagefirestore = functions.firestore
       const addresseeData = address.data();
       const senderData = sender.data();
 
-      const body = message.type === MESSAGE_TYPE.MESSAGE ? message.content : '送出了一個檔案';
+      const body = message.type === MESSAGE_TYPE.MESSAGE ?
+        new StringHandler(message.content)
+          .brToSpace()
+          .limit(20)
+          .toString() :
+        '傳了一個檔案給你';
 
       const payload = {
         notification: {
           icon: senderData.photoURL,
           clickAction: `https://onfirechat.ga/message/r/${roomId}/${message.sender}`,
           title: addresseeData.displayName,
-          body: message.content,
+          body: body,
         }
       };
 
