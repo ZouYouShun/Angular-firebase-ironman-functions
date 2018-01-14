@@ -1,7 +1,9 @@
 {
   "name": "functions",
   "scripts": {
-    "build": "rimraf lib && tslint -p tslint.json && tsc && node move.file",
+    "clean": "rimraf package-lock.json node_modules",
+    "cleanAndUpdate": "npm run clean && ncu -a &&  ncu -d -a && npm install",
+    "build": "rimraf dist && tslint -p tslint.json && tsc && node move.file",
     "build-w": "tslint -p tslint.json && tsc -w",
     "serve": "firebase serve --only functions",
     "shell": "npm run build && firebase experimental:functions:shell",
@@ -10,7 +12,7 @@
     "logs": "firebase functions:log",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Firebase\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run build-w\" \"npm run serve\""
   },
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "dependencies": {
     "@google-cloud/storage": "^1.5.2",
     "@types/nodemailer": "^4.3.1",
