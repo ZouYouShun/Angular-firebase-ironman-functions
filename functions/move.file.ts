@@ -5,10 +5,9 @@ const moveUrl = [
   '/src/keys'
 ];
 
-const destinationUrl = 'lib';
+const destinationUrl = 'dist';
 
 export class MoveFile {
-  fromUrl = 'dist/index.js';
 
   constructor() {
     this.movefile();

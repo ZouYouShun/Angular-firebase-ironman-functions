@@ -5,10 +5,9 @@ var ncp = require("ncp");
 var moveUrl = [
     '/src/keys'
 ];
-var destinationUrl = 'lib';
+var destinationUrl = 'dist';
 var MoveFile = /** @class */ (function () {
     function MoveFile() {
-        this.fromUrl = 'dist/index.js';
         this.movefile();
     }
     MoveFile.prototype.movefile = function () {
