@@ -11,12 +11,6 @@ export const userCreated = functions.auth.user()
 
     const usersRef = admin.firestore().collection('users');
 
-    // 使用者ID+一組亂數的資料做加密
-    const token = {
-      uid: user.uid,
-      token: ''// 一組亂數+GUID
-    };
-
     return usersRef.doc(user.uid).set({
       uid: user.uid,
       email: user.email,
@@ -24,8 +18,7 @@ export const userCreated = functions.auth.user()
       photoURL: user.photoURL || null,
       lastSignInTime: user.metadata.lastSignInTime || null,
       creationTime: user.metadata.creationTime || null,
-      type: type,
-      token: ''
+      type: type
     }).then(u => {
 
       const options: nodemailer.SendMailOptions = {

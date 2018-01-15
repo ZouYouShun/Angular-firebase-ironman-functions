@@ -7,6 +7,7 @@ import { userDeleted } from './triggers/authentication/user.deleted.trigger';
 import { roomsMessagefirestore } from './triggers/firestore/roomsMessage.firestore';
 import { fcmSend } from './triggers/realtimeDatabase/fcm.send.trigger';
 import { generateThumbnail } from './triggers/storage/generateThumbnail.storage';
+import { rendertronHttpTrigger } from './triggers/http/rendertron.http.trigger';
 
 admin.initializeApp(functions.config().firebase);
 
@@ -25,3 +26,6 @@ export const Trigger_fcmSend = fcmSend;
 // authentication
 export const Trigger_userCreated = userCreated;
 export const Trigger_userDeleted = userDeleted;
+
+export const Rendertron = rendertronHttpTrigger;
+
