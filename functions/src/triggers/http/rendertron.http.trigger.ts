@@ -52,7 +52,7 @@ app.get('*', (req: any, res) => {
   const isBot = detectBot(req.headers['user-agent']);
   if (isBot) {
     const botUrl = generateUrl(req);
-    fetch(`${CONFIG.renderUrl}/${botUrl}`)
+    fetch(`${CONFIG.renderUrl}/render/${botUrl}`)
       .then(response => response.text())
       .then(body => {
         res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
