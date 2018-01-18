@@ -8,7 +8,8 @@ import { roomsMessagefirestore } from './triggers/firestore/roomsMessage.firesto
 import { fcmSend } from './triggers/realtimeDatabase/fcm.send.trigger';
 import { generateThumbnail } from './triggers/storage/generateThumbnail.storage';
 import { rendertronHttpTrigger } from './triggers/http/rendertron.http.trigger';
-import { userStatusFirestore } from './triggers/realtimeDatabase/user-status.realtime.trigger';
+import { userStatusRealtime } from './triggers/realtimeDatabase/user-status.realtime.trigger';
+import { roomsMessageUsersfirestore } from './triggers/firestore/roomsMessageUsers.firestore.trigger';
 
 admin.initializeApp(functions.config().firebase);
 
@@ -17,12 +18,13 @@ export const api = functions.https.onRequest(new Server().bootstrap());
 
 // store
 export const Trigger_roomsMessage_store = roomsMessagefirestore;
+export const Trigger_roomsMessageUsersfirestore = roomsMessageUsersfirestore;
 
 // storage
 export const Trigger_generateThumbnail = generateThumbnail;
 
 // realtime database
-export const Trigger_userStatusFirestore = userStatusFirestore;
+export const Trigger_userStatusFirestore = userStatusRealtime;
 
 // authentication
 export const Trigger_userCreated = userCreated;

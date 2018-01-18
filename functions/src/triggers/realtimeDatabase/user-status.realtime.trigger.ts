@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
-export const userStatusFirestore = functions.database
+export const userStatusRealtime = functions.database
   .ref('/status/{uid}').onUpdate(event => {
     const firestore = admin.firestore();
     const eventStatus = event.data.val();
