@@ -1,62 +1,52 @@
 import * as admin from 'firebase-admin';
 
 import { storeTimeObject } from '../../libs/timestamp';
+import { BaseModel } from '../../model/base.model';
 
-export enum ROOM_TYPE {
-  OneToOne = 1
-}
 export const checkMessageReadedHandler = async (req, res, next) => {
   try {
     const firestore = admin.firestore();
-    const messageData = req.body.message;
-    // user ref
-    const usersRef = firestore.collection('users');
-    // add room
-    const room = await firestore.collection('rooms')
-      .add(storeTimeObject({
-        type: ROOM_TYPE.OneToOne
-      }));
+    const user: admin.auth.DecodedIdToken = req.user;
+    // console.log(user);
+    const roomId = req.body.roomId;
 
-    const roomsUsers = room.collection('users');
-    const messagesRef = room.collection('messages');
+    const roomRef = firestore.doc(`/rooms/${roomId}`);
+    const roomMessagesRef = roomRef.collection(`messages`);
+    const myReadStatus = await roomRef.collection(`users`).doc(user.uid).get();
 
-    return Promise.all([
-      // add message
-      messagesRef
-        .add(storeTimeObject(messageData)),
-      // set rooms user => sender
-      roomsUsers
-        .doc(messageData.sender)
-        .set(storeTimeObject({})),
-      // set rooms user => addressee
-      roomsUsers
-        .doc(messageData.addressee)
-        .set(storeTimeObject({})),
-      // set sender room
-      usersRef
-        .doc(messageData.sender)
-        .collection('rooms')
-        .doc(messageData.addressee)
-        .set(storeTimeObject({
-          roomId: room.id,
-          type: ROOM_TYPE.OneToOne
-        })),
-      // set addressee room
-      usersRef
-        .doc(messageData.addressee)
-        .collection('rooms')
-        .doc(messageData.sender)
-        .set(storeTimeObject({
-          roomId: room.id,
-          type: ROOM_TYPE.OneToOne
-        }))
-    ]).then((result) => {
-      return res.success({
-        message: 'add message success',
-        obj: result
+    let query = roomMessagesRef.orderBy('updatedAt');
+
+    if (myReadStatus) {
+      const lastDate = myReadStatus.data();
+      query = query.startAt(lastDate.updatedAt)
+    }
+
+    const batch = firestore.batch();
+    let firstNotReadedMessageId;
+
+    return query.get()
+      .then((result) => {
+        const data = result.docs;
+        if (data && data.length > 0) {
+          firstNotReadedMessageId = data[0].id;
+          data.forEach(message => {
+            // 過濾掉自己的訊息
+            if (message.data().sender !== user.uid) {
+              const messageReadedDoc = message.ref.collection(`readed`).doc(user.uid);
+              batch.set(messageReadedDoc, storeTimeObject({}));
+            }
+          });
+          return batch.commit();
+        }
+        return null;
+      }).then((result) => {
+        return res.success({
+          message: 'mark readed success',
+          obj: firstNotReadedMessageId
+        });
       });
-    });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: 'fail',
       obj: error
